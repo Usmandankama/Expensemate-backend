@@ -49,7 +49,7 @@ export const createExpense = async (req: Request) => {
       const savedExpenses = await Expense.bulkCreate(expensesToInsert);
 
       return Response.json({ 
-        success: true, 
+        success: true,  
         message: `Extracted ${savedExpenses.length} items successfully`,
         data: savedExpenses 
       }, { status: 201 });

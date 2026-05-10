@@ -2,13 +2,13 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
 class Expense extends Model {
-  public id!: number;
-  public name!: string;       // e.g., 'Eggs', 'MTN Data'
-  public category!: string;   // e.g., 'groceries', 'logistics'
-  public amount!: number;     // e.g., 2500.50
-  public date!: Date;         // Date of the actual transaction
-  public status!: string;     // 'pending', 'completed', 'failed'
-  public text!: string;       // Raw OCR text from the Flutter app
+  declare id: number;
+  declare name: string;       // e.g., 'Eggs', 'MTN Data'
+  declare category: string;   // e.g., 'groceries', 'logistics'
+  declare amount: number;     // e.g., 2500.50
+  declare date: Date;         // Date of the actual transaction
+  declare status: string;     // 'pending', 'completed', 'failed'
+  declare text: string;       // Raw OCR text from the Flutter app
 }
 
 Expense.init(
