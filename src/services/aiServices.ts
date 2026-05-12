@@ -3,9 +3,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 // Helper function to pause execution (wait 2 seconds)
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const categorizeReceipt = async (text: string, attempt = 1): Promise<any> => {
+export const categorizeReceipt = async (
+  text: string,
+  attempt = 1,
+): Promise<any> => {
   // Start with Flash, fallback to Flash-Lite if servers are busy
   const modelName = attempt <= 2 ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
 
@@ -13,7 +16,9 @@ export const categorizeReceipt = async (text: string, attempt = 1): Promise<any>
     const model = genAI.getGenerativeModel({
       model: modelName,
       systemInstruction: `You are an expert financial data extractor. Analyze the receipt text and extract EVERY individual item purchased.
-      Categorize each item strictly into one of these categories: Food, Transport, Shopping, Bills, Entertainment, Utilities, Other.
+      Categorize each item strictly into one of these categories: Food, Transport, Shopping, Bills, Entertainment, Utilities, Other.Lines with negative amounts, promo codes, discount labels, or words like 
+"savings", "off", "voucher" are DISCOUNTS — set their amount as negative 
+and category as "discount". Do NOT treat them as purchased items.
       You MUST return a JSON array containing the items. 
       Format example:
       [
@@ -26,16 +31,17 @@ export const categorizeReceipt = async (text: string, attempt = 1): Promise<any>
     });
 
     const prompt = `Extract the line items from this text:\n\n${text}`;
-    
+
     console.log(`🧠 Attempt ${attempt}: Sending to ${modelName}...`);
     const result = await model.generateContent(prompt);
-    
-    return JSON.parse(result.response.text());
 
+    return JSON.parse(result.response.text());
   } catch (error: any) {
     // If we get a 503 (Overloaded) and we haven't tried 3 times yet, retry!
     if (error.status === 503 && attempt < 3) {
-      console.warn(`⚠️ [503] Google Servers overloaded. Retrying in 2 seconds...`);
+      console.warn(
+        `⚠️ [503] Google Servers overloaded. Retrying in 2 seconds...`,
+      );
       await delay(2000); // Wait 2 seconds before hammering the server again
       return categorizeReceipt(text, attempt + 1); // Recursive retry
     }
